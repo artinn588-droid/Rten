@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>برنامه روزانه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F2F7;
+    --card:#FFFFFF;
+    --text:#000000;
+    --text-muted:#8E8E93;
+    --line:#E5E5EA;
+    --accent:#000000;
+    --check-bg:#000000;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height:100vh;
+    padding:0 0 50px;
+    display:flex;
+    justify-content:center;
+  }
+  .app{
+    width:100%;
+    max-width:460px;
+  }
+  header{
+    padding:20px 18px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .title-block h1{
+    font-weight:800;
+    font-size:28px;
+    margin:0 0 2px;
+    letter-spacing:0.2px;
+  }
+  .title-block .date{
+    font-size:14px;
+    color:var(--text-muted);
+    font-weight:500;
+  }
+  .ring-wrap{
+    position:relative;
+    width:54px;
+    height:54px;
+    flex-shrink:0;
+  }
+  .ring-wrap svg{ transform:rotate(-90deg); }
+  .ring-track{ stroke:var(--line); }
+  .ring-fill{
+    stroke:var(--accent);
+    stroke-linecap:round;
+    transition:stroke-dashoffset 0.5s ease;
+  }
+  .ring-label{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    font-weight:700;
+    color:var(--text);
+  }
+
+  /* iOS style segmented control */
+  .segmented{
+    margin:0 18px 14px;
+    background:#E5E5EA;
+    border-radius:9px;
+    padding:2px;
+    display:flex;
+    gap:2px;
+  }
+  .segmented button{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:7px 4px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    border-radius:7px;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .segmented button.active{
+    background:#FFFFFF;
+    box-shadow:0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .add-box{
+    margin:0 18px 24px;
+    background:var(--card);
+    border-radius:14px;
+    padding:4px 6px 4px 4px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.05);
+  }
+  .add-box input[type="text"]{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:inherit;
+    font-size:15px;
+    padding:10px 8px;
+  }
+  .add-box input::placeholder{ color:var(--text-muted); }
+  .add-btn{
+    background:#000000;
+    color:#FFFFFF;
+    border:none;
+    border-radius:10px;
+    width:34px;
+    height:34px;
+    font-size:19px;
+    font-weight:600;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    margin-left:2px;
+  }
+  .add-btn:active{ transform:scale(0.94); }
+
+  .period-section{ margin:0 18px 22px; }
+  .period-header{
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-muted);
+    margin-bottom:8px;
+    padding-right:4px;
+    text-transform:none;
+  }
+
+  .task-group{
+    background:var(--card);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.04);
+  }
+  .task{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:13px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .task:last-child{ border-bottom:none; }
+  .checkbox{
+    width:22px; height:22px;
+    border-radius:50%;
+    border:2px solid #C7C7CC;
+    flex-shrink:0;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all 0.2s ease;
+  }
+  .task.done .checkbox{
+    background:var(--check-bg);
+    border-color:var(--check-bg);
+  }
+  .checkbox svg{ width:12px; height:12px; opacity:0; transition:opacity 0.2s; }
+  .task.done .checkbox svg{ opacity:1; }
+  .task-text{
+    flex:1;
+    font-size:15px;
+    font-weight:500;
+    line-height:1.5;
+    color:var(--text);
+  }
+  .task.done .task-text{ color:var(--text-muted); text-decoration:line-through; text-decoration-color:var(--text-muted); }
+  .task-del{
+    background:none;
+    border:none;
+    color:#C7C7CC;
+    font-size:19px;
+    cursor:pointer;
+    padding:4px;
+    flex-shrink:0;
+  }
+  .task-del:active{ color:var(--text-muted); }
+
+  .empty{
+    text-align:center;
+    color:var(--text-muted);
+    font-size:14px;
+    padding:50px 20px;
+    line-height:1.9;
+  }
+  .empty span{
+    display:block;
+    font-size:30px;
+    margin-bottom:10px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title-block">
+      <h1>برنامه امروز</h1>
+      <div class="date" id="dateLabel"></div>
+    </div>
+    <div class="ring-wrap">
+      <svg width="54" height="54">
+        <circle class="ring-track" cx="27" cy="27" r="23" stroke-width="5" fill="none"/>
+        <circle class="ring-fill" id="ringFill" cx="27" cy="27" r="23" stroke-width="5" fill="none"
+          stroke-dasharray="144.5" stroke-dashoffset="144.5"/>
+      </svg>
+      <div class="ring-label" id="ringLabel">0٪</div>
+    </div>
+  </header>
+
+  <div class="segmented" id="segmented">
+    <button data-period="صبح" class="active">صبح</button>
+    <button data-period="ظهر">ظهر</button>
+    <button data-period="عصر">عصر</button>
+    <button data-period="شب">شب</button>
+  </div>
+
+  <div class="add-box">
+    <input type="text" id="taskInput" placeholder="کار جدید...">
+    <button class="add-btn" id="addBtn">+</button>
+  </div>
+
+  <div id="listWrap"></div>
+</div>
+
+<script>
+const PERIODS = ["صبح","ظهر","عصر","شب"];
+let tasks = [];
+let selectedPeriod = "صبح";
+
+const dateLabel = document.getElementById('dateLabel');
+const listWrap = document.getElementById('listWrap');
+const taskInput = document.getElementById('taskInput');
+const addBtn = document.getElementById('addBtn');
+const ringFill = document.getElementById('ringFill');
+const ringLabel = document.getElementById('ringLabel');
+const segmented = document.getElementById('segmented');
+
+segmented.querySelectorAll('button').forEach(btn=>{
+  btn.onclick = ()=>{
+    segmented.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedPeriod = btn.dataset.period;
+  };
+});
+
+function setDate(){
+  const days = ["یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه","شنبه"];
+  const d = new Date();
+  dateLabel.textContent = days[d.getDay()];
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function load(){
+  try{
+    const raw = localStorage.getItem('tasks');
+    tasks = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    tasks = [];
+  }
+  render();
+}
+
+function save(){
+  try{
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }catch(e){
+    console.error('storage failed', e);
+  }
+}
+
+function addTask(){
+  const text = taskInput.value.trim();
+  if(!text) return;
+  tasks.push({ id: uid(), text, period: selectedPeriod, done:false });
+  taskInput.value = '';
+  save();
+  render();
+}
+
+function toggleTask(id){
+  const t = tasks.find(t=>t.id===id);
+  if(t){ t.done = !t.done; save(); render(); }
+}
+
+function deleteTask(id){
+  tasks = tasks.filter(t=>t.id!==id);
+  save();
+  render();
+}
+
+function render(){
+  listWrap.innerHTML = '';
+
+  if(tasks.length === 0){
+    listWrap.innerHTML = '<div class="empty"><span>○</span>هنوز کاری اضافه نکردی<br>یه کار جدید بنویس و شروع کن</div>';
+    updateRing();
+    return;
+  }
+
+  PERIODS.forEach(period=>{
+    const items = tasks.filter(t=>t.period===period);
+    if(items.length === 0) return;
+
+    const section = document.createElement('div');
+    section.className = 'period-section';
+
+    const header = document.createElement('div');
+    header.className = 'period-header';
+    header.textContent = period;
+    section.appendChild(header);
+
+    const group = document.createElement('div');
+    group.className = 'task-group';
+
+    items.forEach(t=>{
+      const el = document.createElement('div');
+      el.className = 'task' + (t.done ? ' done' : '');
+      el.innerHTML = `
+        <div class="checkbox">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="task-text"></div>
+        <button class="task-del">×</button>
+      `;
+      el.querySelector('.task-text').textContent = t.text;
+      el.querySelector('.checkbox').onclick = ()=>toggleTask(t.id);
+      el.querySelector('.task-del').onclick = ()=>deleteTask(t.id);
+      group.appendChild(el);
+    });
+
+    section.appendChild(group);
+    listWrap.appendChild(section);
+  });
+
+  updateRing();
+}
+
+function updateRing(){
+  const total = tasks.length;
+  const done = tasks.filter(t=>t.done).length;
+  const pct = total === 0 ? 0 : Math.round((done/total)*100);
+  const circumference = 144.5;
+  const offset = circumference - (pct/100)*circumference;
+  ringFill.style.strokeDashoffset = offset;
+  ringLabel.textContent = pct + '٪';
+}
+
+addBtn.onclick = addTask;
+taskInput.addEventListener('keydown', e=>{ if(e.key==='Enter') addTask(); });
+
+setDate();
+load();
+</script>
+</body>
+</html>
