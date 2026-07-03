@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>منوی سفارش</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --card:#FFFFFF;
+    --text:#000000;
+    --text-muted:#9A8B4A;
+    --line:#FBE9A8;
+    --accent:#F5B301;
+    --danger:#D9534F;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height:100vh;
+    padding:0 0 30px;
+    display:flex;
+    justify-content:center;
+  }
+  .app{ width:100%; max-width:460px; }
+
+  header{ padding:22px 18px 10px; }
+  header h1{ font-weight:800; font-size:26px; margin:0 0 2px; }
+  header .sub{ font-size:13.5px; color:var(--text-muted); font-weight:500; }
+
+  .menu-list{ padding:14px 18px 0; }
+  .item-card{
+    background:var(--card);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:10px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.05);
+  }
+  .item-top{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .item-name{
+    flex:1;
+    font-size:16px;
+    font-weight:700;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:inherit;
+    padding:4px 2px;
+  }
+  .item-del{
+    background:none;
+    border:none;
+    color:#C7C7CC;
+    font-size:19px;
+    cursor:pointer;
+    padding:4px;
+    flex-shrink:0;
+  }
+  .item-del:active{ color:var(--danger); }
+
+  .item-bottom{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:10px;
+  }
+  .price-box{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:#FFF8E1;
+    border-radius:10px;
+    padding:6px 10px;
+  }
+  .price-input{
+    width:80px;
+    background:transparent;
+    border:none;
+    outline:none;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--text);
+    text-align:left;
+  }
+  .price-unit{ font-size:13px; color:var(--text-muted); }
+
+  .qty-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .qty-btn{
+    width:30px; height:30px;
+    border-radius:50%;
+    border:none;
+    background:var(--accent);
+    color:#000;
+    font-size:17px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .qty-btn:active{ transform:scale(0.92); }
+  .qty-btn.minus{ background:var(--line); color:var(--text); }
+  .qty-val{ min-width:18px; text-align:center; font-weight:700; font-size:15px; }
+
+  .add-box{
+    margin:16px 18px 0;
+    background:var(--card);
+    border-radius:14px;
+    padding:12px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.05);
+  }
+  .add-box .row{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .add-box input{
+    background:#FFF8E1;
+    border:none;
+    outline:none;
+    border-radius:10px;
+    padding:10px 12px;
+    font-family:inherit;
+    font-size:14.5px;
+    color:var(--text);
+  }
+  .add-box input::placeholder{ color:var(--text-muted); }
+  #newName{ width:100%; }
+  #newPrice{ width:100%; text-align:right; }
+  .add-submit{
+    width:100%;
+    background:var(--accent);
+    color:#000;
+    border:none;
+    border-radius:10px;
+    padding:11px;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .add-submit:active{ transform:scale(0.98); }
+
+  .footer{
+    background:var(--card);
+    box-shadow:0 -1px 10px rgba(0,0,0,0.08);
+    padding:16px 18px calc(16px + env(safe-area-inset-bottom));
+    display:flex;
+    justify-content:center;
+    margin:18px 0 0;
+  }
+  .footer-inner{
+    width:100%;
+    max-width:460px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .total-label{ font-size:13px; color:var(--text-muted); font-weight:600; }
+  .total-value{ font-size:19px; font-weight:800; white-space:nowrap; }
+
+  .empty{
+    text-align:center;
+    color:var(--text-muted);
+    font-size:14px;
+    padding:40px 20px;
+    line-height:1.9;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>منوی سفارش</h1>
+    <div class="sub">روی هر آیتم بزن تا تغییرش بدی</div>
+  </header>
+
+  <div class="menu-list" id="menuList"></div>
+
+  <div class="add-box">
+    <div class="row">
+      <input type="text" id="newName" placeholder="اسم غذا...">
+      <input type="number" id="newPrice" placeholder="قیمت">
+    </div>
+    <button class="add-submit" id="addBtn">افزودن غذای جدید</button>
+  </div>
+
+  <div class="footer">
+    <div class="footer-inner">
+      <div class="total-label">مجموع سفارش</div>
+      <div class="total-value" id="totalValue">۰ تومان</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_ITEMS = [
+  { id: 'i1', name: 'کباب کوبیده', price: 180000, qty: 0 },
+  { id: 'i2', name: 'جوجه کباب', price: 200000, qty: 0 },
+  { id: 'i3', name: 'گوجه کبابی', price: 20000, qty: 0 },
+  { id: 'i4', name: 'نان و سرویس', price: 15000, qty: 0 },
+];
+
+let items = [];
+
+const menuList = document.getElementById('menuList');
+const totalValue = document.getElementById('totalValue');
+const newName = document.getElementById('newName');
+const newPrice = document.getElementById('newPrice');
+const addBtn = document.getElementById('addBtn');
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function formatPrice(n){
+  return Number(n).toLocaleString('fa-IR');
+}
+
+function load(){
+  try{
+    const raw = localStorage.getItem('menu_items');
+    items = raw ? JSON.parse(raw) : DEFAULT_ITEMS.slice();
+  }catch(e){
+    items = DEFAULT_ITEMS.slice();
+  }
+  render();
+}
+
+function save(){
+  try{
+    localStorage.setItem('menu_items', JSON.stringify(items));
+  }catch(e){
+    console.error('storage failed', e);
+  }
+}
+
+function updateName(id, val){
+  const it = items.find(i=>i.id===id);
+  if(it){ it.name = val; save(); }
+}
+
+function updatePrice(id, val){
+  const it = items.find(i=>i.id===id);
+  if(it){ it.price = Number(val) || 0; save(); renderTotal(); }
+}
+
+function changeQty(id, delta){
+  const it = items.find(i=>i.id===id);
+  if(it){
+    it.qty = Math.max(0, (it.qty||0) + delta);
+    save();
+    render();
+  }
+}
+
+function deleteItem(id){
+  items = items.filter(i=>i.id!==id);
+  save();
+  render();
+}
+
+function addItem(){
+  const name = newName.value.trim();
+  const price = Number(newPrice.value) || 0;
+  if(!name) return;
+  items.push({ id: uid(), name, price, qty: 0 });
+  newName.value = '';
+  newPrice.value = '';
+  save();
+  render();
+}
+
+function render(){
+  menuList.innerHTML = '';
+
+  if(items.length === 0){
+    menuList.innerHTML = '<div class="empty">هنوز غذایی اضافه نکردی</div>';
+    renderTotal();
+    return;
+  }
+
+  items.forEach(it=>{
+    const card = document.createElement('div');
+    card.className = 'item-card';
+    card.innerHTML = `
+      <div class="item-top">
+        <input type="text" class="item-name" value="${it.name.replace(/"/g,'&quot;')}">
+        <button class="item-del">×</button>
+      </div>
+      <div class="item-bottom">
+        <div class="price-box">
+          <input type="number" class="price-input" value="${it.price}">
+          <span class="price-unit">تومان</span>
+        </div>
+        <div class="qty-box">
+          <button class="qty-btn minus">−</button>
+          <span class="qty-val">${it.qty||0}</span>
+          <button class="qty-btn plus">+</button>
+        </div>
+      </div>
+    `;
+    card.querySelector('.item-name').addEventListener('change', e=>updateName(it.id, e.target.value));
+    card.querySelector('.price-input').addEventListener('change', e=>updatePrice(it.id, e.target.value));
+    card.querySelector('.item-del').addEventListener('click', ()=>deleteItem(it.id));
+    card.querySelector('.plus').addEventListener('click', ()=>changeQty(it.id, 1));
+    card.querySelector('.minus').addEventListener('click', ()=>changeQty(it.id, -1));
+    menuList.appendChild(card);
+  });
+
+  renderTotal();
+}
+
+function renderTotal(){
+  const total = items.reduce((sum, it)=> sum + (it.price * (it.qty||0)), 0);
+  totalValue.textContent = formatPrice(total) + ' تومان';
+}
+
+addBtn.onclick = addItem;
+
+load();
+</script>
+</body>
+</html>
