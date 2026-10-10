@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>منشی هوشمند مطب (نمونه)</title>
+<meta name="theme-color" content="#0B4F57">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+:root{
+  --bg:#EEF4F5; --ink:#0B2B30; --muted:#5E7A80; --line:#D5E2E4;
+  --teal:#0E7C86; --teal-d:#0B4F57; --teal-l:#DDF0F1;
+  --green:#22B573; --red:#E5484D; --amber:#FFB020;
+  --font:'Vazirmatn','Vazir',Tahoma,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.8;-webkit-text-size-adjust:100%}
+button{font-family:inherit;border:0;background:none;cursor:pointer;color:inherit}
+input{font-family:inherit}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:10px}
+.app{height:100vh;height:100dvh;max-width:560px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg)}
+
+header{padding:14px 18px 10px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:16px;font-weight:800;line-height:1.5}
+header small{display:block;font-size:12px;color:var(--muted);font-weight:400}
+.tag{font-size:11.5px;padding:3px 10px;border-radius:999px;background:var(--teal-l);color:var(--teal-d);font-weight:700}
+
+main{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 14px}
+.view{display:none;flex:1;min-height:0;flex-direction:column}
+.view.on{display:flex}
+
+/* صحنه تماس */
+.stage{border-radius:26px;background:linear-gradient(160deg,var(--teal-d),var(--teal));color:#fff;padding:16px 18px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+.avatar{width:64px;height:64px;flex:none;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;position:relative}
+.avatar svg{width:32px;height:32px}
+.avatar::before,.avatar::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(255,255,255,.4);opacity:0}
+.stage.speaking .avatar::before{animation:ring 1.6s ease-out infinite}
+.stage.speaking .avatar::after{animation:ring 1.6s ease-out .5s infinite}
+.stage.listening .avatar{background:rgba(255,176,32,.35)}
+.stage.listening .avatar::before{border-color:var(--amber);animation:ring 1.2s ease-out infinite}
+@keyframes ring{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+.who{flex:1;min-width:0}
+.who b{display:block;font-size:15px}
+.who span{font-size:13px;opacity:.85}
+.bars{display:flex;gap:3px;align-items:center;height:26px}
+.bars i{width:4px;height:6px;border-radius:2px;background:#fff;opacity:.5;transition:height .15s}
+.stage.speaking .bars i{animation:bar .9s ease-in-out infinite;opacity:1}
+.stage.speaking .bars i:nth-child(2){animation-delay:.12s}
+.stage.speaking .bars i:nth-child(3){animation-delay:.24s}
+.stage.speaking .bars i:nth-child(4){animation-delay:.36s}
+.stage.speaking .bars i:nth-child(5){animation-delay:.48s}
+@keyframes bar{0%,100%{height:6px}50%{height:24px}}
+
+.start{margin:auto;text-align:center;padding:20px}
+.start p{color:var(--muted);font-size:14px;max-width:34ch;margin:0 auto 22px}
+.callbtn{width:84px;height:84px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;margin:0 auto;box-shadow:0 12px 30px -8px rgba(34,181,115,.7);animation:pulse 2.2s ease-in-out infinite}
+.callbtn svg{width:36px;height:36px}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.start .lbl{margin-top:12px;font-weight:700}
+
+.chat{flex:1;min-height:0;overflow-y:auto;padding:14px 2px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.b{max-width:84%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.85;animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.b.ai{background:#fff;border:1px solid var(--line);border-top-right-radius:6px;align-self:flex-start}
+.b.me{background:var(--teal);color:#fff;border-top-left-radius:6px;align-self:flex-end}
+.b.sys{align-self:center;max-width:94%;background:#FFF4DB;color:#6B4A00;border:1px solid #F3D58A;font-size:13px;line-height:1.8;border-radius:14px}
+.sms{align-self:flex-start;max-width:88%;border-radius:16px;border:1px dashed var(--teal);background:var(--teal-l);padding:12px 14px;font-size:13.5px;line-height:1.9}
+.sms b{display:block;color:var(--teal-d);margin-bottom:2px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 0}
+.chip{padding:9px 16px;border-radius:999px;border:1px solid var(--teal);color:var(--teal-d);background:#fff;font-weight:700;font-size:14px}
+.chip:active{background:var(--teal);color:#fff}
+
+.dock{padding:8px 0 10px}
+.inrow{display:flex;gap:8px;align-items:center}
+.inrow input{flex:1;min-width:0;height:48px;border-radius:999px;border:1px solid var(--line);background:#fff;padding:0 18px;font-size:15px}
+.rbtn{width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff}
+.rbtn svg{width:22px;height:22px}
+.mic{background:var(--teal)}
+.mic.on{background:var(--amber);color:#2A1A00}
+.send{background:var(--teal-d)}
+.hang{background:var(--red)}
+.meta{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);padding:6px 4px 0}
+.snd{display:flex;align-items:center;gap:6px}
+.snd button{padding:2px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px}
+.note{font-size:12px;color:var(--muted);padding:2px 4px}
+
+/* لیست نوبت‌ها */
+.list{flex:1;min-height:0;overflow-y:auto;display:grid;gap:10px;align-content:start;padding:6px 0 14px}
+.appt{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:grid;gap:2px}
+.appt .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.appt b{font-size:16px}
+.appt .code{font-size:12px;background:var(--teal-l);color:var(--teal-d);padding:2px 10px;border-radius:999px;font-weight:700}
+.appt .when{color:var(--teal-d);font-weight:700;font-size:15px}
+.appt .sub{font-size:13.5px;color:var(--muted)}
+.empty{margin:auto;text-align:center;color:var(--muted);font-size:14px;padding:30px;max-width:30ch}
+.listhead{font-size:13px;color:var(--muted);padding:2px 4px 8px}
+
+nav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);background:#fff;padding-bottom:env(safe-area-inset-bottom)}
+nav button{padding:12px;font-size:14px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button svg{width:22px;height:22px}
+nav button[aria-selected="true"]{color:var(--teal)}
+.badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;margin-inline-start:6px}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1 id="docTitle">مطب دکتر احمدی<small>متخصص داخلی</small></h1>
+    <span class="tag">نمونه آزمایشی</span>
+  </header>
+
+  <main>
+    <!-- تماس -->
+    <section class="view on" id="vCall">
+      <div class="stage" id="stage">
+        <div class="avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2.5" y="12" width="4" height="7" rx="2"/><rect x="17.5" y="12" width="4" height="7" rx="2"/><path d="M19.500 19c0 1.700-2 2.500-5 2.500"/></svg>
+        </div>
+        <div class="who"><b>دستیار هوشمند مطب</b><span id="status">آماده تماس</span></div>
+        <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="start" id="start">
+        <p>مثل یک مریض واقعی با مطب تماس بگیر. دستیار اسم، شماره، نوع ویزیت و زمان رو می‌پرسه و نوبت رو ثبت می‌کنه.</p>
+        <button class="callbtn" id="callBtn" aria-label="تماس با مطب"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.600 10.800a15 15 0 0 0 6.600 6.600l2.200-2.200a1 1 0 0 1 1-.25 11.400 11.400 0 0 0 3.600.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.500a1 1 0 0 1 1 1c0 1.250.2 2.450.6 3.600a1 1 0 0 1-.25 1z"/></svg></button>
+        <div class="lbl">تماس با مطب</div>
+      </div>
+
+      <div id="live" style="display:none;flex:1;min-height:0;flex-direction:column">
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <div class="dock">
+          <div class="inrow">
+            <button class="rbtn hang" id="hang" aria-label="قطع تماس"><svg viewBox="0 0 24 24" fill="currentColor" style="transform:rotate(135deg)"><path d="M6.600 10.800a15 15 0 0 0 6.600 6.600l2.200-2.200a1 1 0 0 1 1-.25 11.400 11.400 0 0 0 3.600.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.500a1 1 0 0 1 1 1c0 1.250.2 2.450.6 3.600a1 1 0 0 1-.25 1z"/></svg></button>
+            <input id="txt" placeholder="جواب بده یا تایپ کن" autocomplete="off" enterkeyhint="send">
+            <button class="rbtn mic" id="mic" aria-label="صحبت کردن"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+            <button class="rbtn send" id="send" aria-label="ارسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1)"><path d="M4 12l16-8-6 16-3-7z"/></svg></button>
+          </div>
+          <div class="meta">
+            <span id="timer">۰۰:۰۰</span>
+            <span class="snd"><span id="sndNote"></span><button id="sndBtn" aria-pressed="true">صدا روشن</button></span>
+          </div>
+          <div class="note" id="micNote"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- نوبت‌ها -->
+    <section class="view" id="vList">
+      <div class="listhead">پنل منشی و دکتر: نوبت‌هایی که دستیار ثبت کرده</div>
+      <div class="list" id="list"></div>
+    </section>
+  </main>
+
+  <nav role="tablist">
+    <button role="tab" id="tCall" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.600 10.800a15 15 0 0 0 6.600 6.600l2.200-2.200a1 1 0 0 1 1-.25 11.400 11.400 0 0 0 3.600.6 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.500a1 1 0 0 1 1 1c0 1.250.2 2.450.6 3.600a1 1 0 0 1-.25 1z"/></svg>تماس</button>
+    <button role="tab" id="tList" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span>نوبت‌ها<span class="badge" id="badge" style="display:none">۰</span></span></button>
+  </nav>
+</div>
+
+<script>
+/* ---- تنظیمات مطب (نمونه): اینجا عوض کن ---- */
+const DOCTOR = {name:'دکتر احمدی', field:'متخصص داخلی'};
+const SLOTS = ['17:00','17:30','18:00','18:30','19:00','19:30'];
+const TYPES = ['ویزیت اول','پیگیری درمان','جواب آزمایش'];
+
+document.getElementById('docTitle').innerHTML = `مطب ${DOCTOR.name}<small>${DOCTOR.field}</small>`;
+const $ = id => document.getElementById(id);
+const fa = n => Number(n).toLocaleString('fa-IR',{useGrouping:false});
+const toEn = s => s.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+const norm = s => s.replace(/[\s\u200c]/g,'').replace(/ي/g,'ی').replace(/ك/g,'ک');
+
+/* ---- ذخیره نوبت‌ها ---- */
+let appts = [];
+try { appts = JSON.parse(localStorage.getItem('clinic-appts') || '[]'); } catch(e){}
+const save = () => { try { localStorage.setItem('clinic-appts', JSON.stringify(appts)); } catch(e){} };
+
+/* ---- صدا ---- */
+let soundOn = true, faVoice = null, ttsMode = '', speakId = 0, curAudio = null, speakTimer;
+const synth = window.speechSynthesis;
+function pickVoice(){
+  if(!synth) return;
+  faVoice = synth.getVoices().find(v => /^fa/i.test(v.lang) || /persian|farsi|فارسی/i.test(v.name)) || null;
+  setSndNote();
+}
+if(synth){ pickVoice(); synth.onvoiceschanged = pickVoice; }
+function setSndNote(){
+  $('sndNote').textContent = !soundOn ? '' : ttsMode === 'device' ? 'صدا: دستگاه' : ttsMode === 'online' ? 'صدا: آنلاین' : ttsMode === 'none' ? 'صدا در دسترس نیست، فقط متن' : '';
+}
+function stopAudio(){ if(curAudio){ try{ curAudio.pause(); }catch(e){} curAudio = null; } }
+$('sndBtn').onclick = () => { soundOn = !soundOn; $('sndBtn').setAttribute('aria-pressed', soundOn); $('sndBtn').textContent = soundOn ? 'صدا روشن' : 'صدا خاموش'; if(!soundOn){ speakId++; stopAudio(); if(synth) synth.cancel(); } setSndNote(); };
+
+/* تکه‌تکه کردن متن برای صدای آنلاین (محدودیت طول) */
+function chunks(t){
+  const parts = t.replace(/([.!؟?،])\s*/g, '$1|').split('|').filter(Boolean), out = []; let cur = '';
+  for(const p of parts){ if(cur && (cur + ' ' + p).length > 170){ out.push(cur); cur = p; } else cur = cur ? cur + ' ' + p : p; }
+  if(cur) out.push(cur); return out;
+}
+async function playOnline(text, id){
+  let played = 0;
+  for(const c of chunks(text)){
+    if(id !== speakId) return true;
+    const ok = await new Promise(res => {
+      const a = new Audio(); a.referrerPolicy = 'no-referrer'; curAudio = a;
+      const to = setTimeout(() => res(false), 9000);
+      a.onended = () => { clearTimeout(to); res(true); }; a.onerror = () => { clearTimeout(to); res(false); };
+      a.src = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fa&q=' + encodeURIComponent(c);
+      a.play().catch(() => { clearTimeout(to); res(false); });
+    });
+    if(!ok) return played > 0;
+    played++;
+  }
+  return true;
+}
+
+function speak(text, done){
+  const id = ++speakId; setMode('speaking'); stopAudio();
+  const fin = () => { if(id !== speakId) return; clearTimeout(speakTimer); setMode(''); done && done(); };
+  const fake = ms => { speakTimer = setTimeout(fin, ms); };
+  const dur = Math.min(5500, 600 + text.length*45);
+  if(!soundOn){ fake(dur); return; }
+  if(synth && faVoice){
+    ttsMode = 'device'; setSndNote(); synth.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = faVoice.lang; u.voice = faVoice;
+    u.onend = fin; u.onerror = fin; synth.speak(u); return;
+  }
+  playOnline(text, id).then(ok => {
+    if(id !== speakId) return;
+    if(ok){ ttsMode = 'online'; setSndNote(); fin(); }
+    else { ttsMode = 'none'; setSndNote(); fake(dur); }
+  }).catch(() => { if(id !== speakId) return; ttsMode = 'none'; setSndNote(); fake(dur); });
+}
+function setMode(m){
+  const st = $('stage'); st.classList.toggle('speaking', m==='speaking'); st.classList.toggle('listening', m==='listening');
+  $('status').textContent = !call.on ? 'آماده تماس' : m==='speaking' ? 'در حال صحبت' : m==='listening' ? 'در حال شنیدن…' : 'منتظر جواب شما';
+}
+
+/* ---- تشخیص گفتار ---- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false;
+const MIC_ERR = {
+  'not-allowed': 'اجازه میکروفون داده نشده. سایت رو توی کروم باز کن (نه داخل تلگرام یا مرورگر درون‌برنامه‌ای) و اجازه بده. بهتره فایل روی یک آدرس https باشه.',
+  'service-not-allowed': 'اجازه میکروفون داده نشده. سایت رو توی کروم باز کن و اجازه بده.',
+  'network': 'تشخیص گفتار به سرور گوگل وصل می‌شه و وصل نشد (اینترنت یا فیلترینگ). فعلاً تایپ کن یا گزینه‌ها رو بزن.',
+  'no-speech': 'صدایی شنیده نشد. نزدیک‌تر حرف بزن و دوباره دکمه میکروفون رو بزن.',
+  'audio-capture': 'میکروفون پیدا نشد.',
+  'language-not-supported': 'این دستگاه تشخیص گفتار فارسی نداره. تایپ کن یا گزینه‌ها رو بزن.'
+};
+if(SR){
+  rec = new SR(); rec.lang = 'fa-IR'; rec.interimResults = false; rec.maxAlternatives = 1;
+  rec.onresult = e => { const t = e.results[0][0].transcript; stopListen(); if(t) handle(t); };
+  rec.onerror = e => { stopListen(); sys(MIC_ERR[e.error] || ('تشخیص گفتار کار نکرد (' + e.error + '). تایپ کن یا گزینه‌ها رو بزن.')); };
+  rec.onend = () => { if(listening){ stopListen(); sys(MIC_ERR['no-speech']); } };
+} else { $('micNote').textContent = 'این مرورگر تشخیص گفتار ندارد؛ جواب‌ها را تایپ کن یا گزینه‌ها را بزن.'; $('mic').style.display = 'none'; }
+function startListen(){
+  if(!rec || !call.on) return;
+  speakId++; stopAudio(); if(synth) synth.cancel(); clearTimeout(speakTimer);
+  try{ rec.start(); listening = true; $('mic').classList.add('on'); setMode('listening'); $('micNote').textContent = ''; }catch(e){ sys('میکروفون در دسترس نیست. دوباره امتحان کن.'); }
+}
+function stopListen(){ listening = false; $('mic').classList.remove('on'); if(call.on) setMode(''); try{ rec.stop(); }catch(e){} }
+$('mic').onclick = () => listening ? stopListen() : startListen();
+
+/* ---- نمایش گفتگو ---- */
+function bubble(kind, text){ const d = document.createElement('div'); d.className = 'b ' + kind; d.textContent = text; $('chat').appendChild(d); $('chat').scrollTop = 1e6; }
+function sys(text){ if(!call.on) return; bubble('sys', text); }
+function setChips(list){ $('chips').innerHTML = (list||[]).map(c => `<button class="chip">${c}</button>`).join(''); $('chips').querySelectorAll('.chip').forEach(b => b.onclick = () => handle(b.textContent)); }
+function ai(text, chips, done){ bubble('ai', text); setChips(chips); speak(text, done); }
+
+/* ---- روزها و ساعت‌ها ---- */
+const dayLabel = d => d.toLocaleDateString('fa-IR',{weekday:'long',day:'numeric',month:'long'});
+const wdName = d => d.toLocaleDateString('fa-IR',{weekday:'long'});
+const key = d => d.toISOString().slice(0,10);
+function nextDays(n){ const out = []; const d = new Date(); d.setHours(12,0,0,0); while(out.length < n){ d.setDate(d.getDate()+1); if(d.getDay() !== 5) out.push(new Date(d)); } return out; }
+function hash(s){ let h = 0; for(const c of s) h = (h*31 + c.charCodeAt(0)) >>> 0; return h; }
+function freeSlots(d){ return SLOTS.filter(s => hash(key(d)+s) % 3 !== 0 && !appts.some(a => a.key === key(d) && a.time === s)); }
+
+/* ---- جریان گفتگو ---- */
+const call = {on:false, step:'', data:{}, days:[], slots:[], t0:0, tick:null};
+
+function startCall(){
+  call.on = true; call.step = 'name'; call.data = {}; $('chat').innerHTML = '';
+  $('start').style.display = 'none'; $('live').style.display = 'flex';
+  call.t0 = Date.now(); call.tick = setInterval(() => { const s = Math.floor((Date.now()-call.t0)/1000); $('timer').textContent = fa(String(Math.floor(s/60)).padStart(2,'0')) + ':' + fa(String(s%60).padStart(2,'0')); }, 1000);
+  setMode('');
+  if(synth){ try{ const u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); }catch(e){} }
+  if(!SR) setTimeout(() => sys('این مرورگر تشخیص گفتار ندارد. جواب‌ها را تایپ کن یا گزینه‌ها را بزن. برای میکروفون از کروم استفاده کن.'), 300);
+  setTimeout(() => ai(`سلام، به مطب ${DOCTOR.name}، ${DOCTOR.field} خوش اومدید. من دستیار هوشمند مطب هستم و برای شما نوبت ثبت می‌کنم. لطفاً اسم و فامیلتون رو بفرمایید.`), 500);
+}
+function endCall(){
+  call.on = false; clearInterval(call.tick); speakId++; clearTimeout(speakTimer); stopAudio(); if(synth) synth.cancel(); if(listening) stopListen();
+  $('live').style.display = 'none'; $('start').style.display = ''; setMode('');
+  $('stage').classList.remove('speaking','listening'); $('timer').textContent = '۰۰:۰۰';
+}
+$('callBtn').onclick = startCall; $('hang').onclick = endCall;
+$('send').onclick = () => { const t = $('txt').value.trim(); if(t){ $('txt').value = ''; handle(t); } };
+$('txt').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('send').click(); } });
+
+function handle(raw){
+  if(!call.on) return;
+  const text = raw.trim(); if(!text) return;
+  speakId++; stopAudio(); if(synth) synth.cancel(); clearTimeout(speakTimer);
+  bubble('me', text); setChips([]);
+  const t = norm(toEn(text)), D = call.data;
+  switch(call.step){
+    case 'name': {
+      const name = text.replace(/(اسم من|اسمم|من|هستم|هست|فامیلم|فامیلی|با)\s*/g,'').trim();
+      if(name.replace(/\s/g,'').length < 3) return ai('ببخشید، متوجه اسمتون نشدم. اسم و فامیلتون رو یک بار دیگه بفرمایید.');
+      D.name = name; call.step = 'phone';
+      return ai(`ممنون ${name.split(' ')[0]}. شماره موبایل‌تون رو بفرمایید تا پیامک تأیید نوبت براتون ارسال بشه.`);
+    }
+    case 'phone': {
+      let n = toEn(text).replace(/\D/g,''); if(/^9\d{9}$/.test(n)) n = '0' + n;
+      if(!/^09\d{9}$/.test(n)) return ai('شماره باید ۱۱ رقم باشه و با ۰۹ شروع بشه. لطفاً دوباره بفرمایید.');
+      D.phone = n; call.step = 'type';
+      return ai('برای چه کاری نوبت می‌خواید؟', TYPES);
+    }
+    case 'type': {
+      let ty = null;
+      if(/پیگیر|قبل|دوباره/.test(t)) ty = TYPES[1]; else if(/آزمایش|جواب|نتیجه/.test(t)) ty = TYPES[2]; else if(/اول|جدید|ویزیت|اولین|معاینه/.test(t)) ty = TYPES[0];
+      if(!ty) return ai('متوجه نشدم. ویزیت اول، پیگیری درمان یا جواب آزمایش؟', TYPES);
+      D.type = ty; return askDay();
+    }
+    case 'day': {
+      let best = null, score = 0;
+      call.days.forEach((d,i) => { const w = norm(wdName(d)); let s = t.includes(w) ? w.length : 0; if(/فردا/.test(t) && i === 0) s = 99; if(s > score){ score = s; best = d; } });
+      if(!best) return ai('متوجه روز نشدم. یکی از روزهای پیشنهادی رو بفرمایید.', call.days.map(dayLabel));
+      D.day = best; D.dayText = dayLabel(best); call.slots = freeSlots(best);
+      if(!call.slots.length) return ai(`برای ${D.dayText} نوبت خالی نداریم. روز دیگه‌ای رو انتخاب کنید.`, call.days.map(dayLabel));
+      call.step = 'time';
+      return ai(`برای ${D.dayText} این ساعت‌ها خالیه: ${call.slots.slice(0,4).map(s => fa(s.slice(0,2)) + ':' + fa(s.slice(3))).join('، ')}. کدوم رو می‌خواید؟`, call.slots.slice(0,4).map(s => fa(s.slice(0,2)) + ':' + fa(s.slice(3))));
+    }
+    case 'time': {
+      let pick = null;
+      if(/اولی|اولین/.test(t)) pick = call.slots[0];
+      else { const m = toEn(text).match(/(\d{1,2})\s*(?:[:٫.]\s*(\d{2}))?/); if(m){ let h = +m[1], mi = m[2] ? +m[2] : null; if(h < 12) h += 12; pick = call.slots.find(s => +s.slice(0,2) === h && (mi === null || +s.slice(3) === mi)); } }
+      if(!pick) return ai('این ساعت خالی نیست. یکی از ساعت‌های پیشنهادی رو بفرمایید.', call.slots.slice(0,4).map(s => fa(s.slice(0,2)) + ':' + fa(s.slice(3))));
+      D.time = pick; call.step = 'confirm';
+      return ai(`پس نوبت ${D.name} برای ${D.type}، ${D.dayText}، ساعت ${fa(pick.slice(0,2))}:${fa(pick.slice(3))}. تأیید کنم؟`, ['بله، ثبت کن','تغییر زمان']);
+    }
+    case 'confirm': {
+      if(/بله|تایید|تأیید|اره|آره|ثبت|باشه|اوکی|درسته/.test(t)) return book();
+      if(/تغییر|نه|خیر|دیگه|عوض/.test(t)) return askDay();
+      return ai('نوبت رو ثبت کنم یا زمان رو تغییر بدیم؟', ['بله، ثبت کن','تغییر زمان']);
+    }
+    default:
+      return ai('نوبت شما ثبت شده. اگه کار دیگه‌ای ندارید می‌تونید تماس رو قطع کنید. روز خوبی داشته باشید.');
+  }
+}
+function askDay(){
+  call.step = 'day'; call.days = nextDays(4);
+  return ai('کدوم روز براتون مناسبه؟ ' + call.days.map(dayLabel).join('، ') + '.', call.days.map(dayLabel));
+}
+function book(){
+  const D = call.data, code = fa(1000 + Math.floor(Math.random()*9000));
+  const a = {name:D.name, phone:D.phone, type:D.type, dayText:D.dayText, key:key(D.day), time:D.time, code};
+  appts.unshift(a); save(); renderList(); call.step = 'done';
+  const tm = fa(a.time.slice(0,2)) + ':' + fa(a.time.slice(3));
+  ai(`نوبت شما ثبت شد. کد پیگیری ${code}. پیامک تأیید براتون ارسال می‌شه. لطفاً ده دقیقه زودتر تشریف بیارید. روز خوبی داشته باشید.`);
+  const sms = document.createElement('div'); sms.className = 'sms';
+  sms.innerHTML = `<b>پیامک تأیید</b>${a.name} عزیز، نوبت شما در مطب ${DOCTOR.name} ثبت شد.<br>${a.dayText}، ساعت ${tm}<br>کد پیگیری: ${code}`;
+  $('chat').appendChild(sms); $('chat').scrollTop = 1e6;
+}
+
+/* ---- تب‌ها و لیست ---- */
+function renderList(){
+  const L = $('list'), b = $('badge');
+  b.style.display = appts.length ? 'inline-grid' : 'none'; b.textContent = fa(appts.length);
+  if(!appts.length){ L.innerHTML = '<div class="empty">هنوز نوبتی ثبت نشده. یک تماس آزمایشی بگیر تا اینجا ببینی.</div>'; return; }
+  L.innerHTML = appts.map(a => `<div class="appt"><div class="top"><b>${a.name}</b><span class="code">${a.code}</span></div><div class="when">${a.dayText}، ساعت ${fa(a.time.slice(0,2))}:${fa(a.time.slice(3))}</div><div class="sub">${a.type} · ${fa(a.phone)}</div></div>`).join('');
+}
+function tab(which){
+  $('vCall').classList.toggle('on', which==='call'); $('vList').classList.toggle('on', which==='list');
+  $('tCall').setAttribute('aria-selected', which==='call'); $('tList').setAttribute('aria-selected', which==='list');
+}
+$('tCall').onclick = () => tab('call'); $('tList').onclick = () => tab('list');
+renderList();
+</script>
+</body>
+</html>
